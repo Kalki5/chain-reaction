@@ -4,7 +4,7 @@ var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-http.listen(80, function () { console.log('listening on *:8000'); });
+http.listen(80, function () { console.log('listening on *:80'); });
 
 var Board = require('./board.js');
 
@@ -82,14 +82,3 @@ function validatePlayer(name, players, status) {
   }
   return -1;
 }
-
-
-//       io.clients(function(error, clients){
-//         if (error) throw error;
-//         console.log(clients);
-//       });
-
-// // console.log('User connected. Total users ' + users);
-
-
-//       // console.log('User disconnected. Total users ' + users);
