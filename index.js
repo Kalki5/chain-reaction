@@ -21,10 +21,16 @@ app.get('/', function (req, res) {
 });
 
 app.get('/create', function (req, res) {
+  if (boardObject != null) {
+    return res.redirect('/');
+  }
   res.sendFile(__dirname + '/views/create.html');
 });
 
 app.post('/create', function (req, res) {
+  if (boardObject != null) {
+    return res.redirect('/');
+  }
   let row = req.body.row; column = req.body.column; players = req.body.players;
   players = players.split(",").map(function (name) {
     return { name: name.trim(), status: false};
@@ -45,6 +51,7 @@ io.on('connection', function (socket) {
       socket.emit('message', 'You\'ve Joined Successfully');
       socket.name = data.name;
       boardObject.players[validationResult].status = true;
+      socket.emit('play', { cells : boardObject.cells, turn : boardObject.turn });
     } else {
       socket.emit('message', 'You\'re not registered as a player in this game');
     }
@@ -55,11 +62,7 @@ io.on('connection', function (socket) {
 
   socket.on('play', function(data){
     boardObject.fire(+data.i,+data.j,data.owner);
-    let info = {
-      cells : boardObject.cells,
-      turn : boardObject.turn
-    }
-    io.emit('play', info);
+    io.emit('play', { cells : boardObject.cells, turn : boardObject.turn });
   });
 
   socket.on('disconnect', function () {

@@ -6,32 +6,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-        td{
-            border: black 1px solid;
-            height: 50px;
-            width: 50px;
+
+        body, li {            
+            font-family: cursive;
+            font-weight: bold;
+            background: darkseagreen;
+        }
+
+        table {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        td {
+            border: 6px inset black;
+            height: 65px;
+            width: 65px;
             text-align: center;
+            cursor: pointer;
         }
 
         td:hover {
-            background-color: lightcyan !important;
+            background: radial-gradient(whitesmoke,lightskyblue);
         }
 
-        td:focus {
-            background-color: lightblue !important;
-        }
+        .online { color: lawngreen; }
+        .offline { color: red; }
+
+        .player1-bg td { border-color: red; }
+        .player2-bg td { border-color: green; }
+        .player3-bg td { border-color: yellow; }
+        .player4-bg td { border-color: blue; }
+        .player5-bg td { border-color: purple; }
+        .player6-bg td { border-color: grey; }
+        .player7-bg td { border-color: orange; }
+        .player8-bg td { border-color: brown; }
+        .player1 { color: red; }
+        .player2 { color: green; }
+        .player3 { color: yellow; }
+        .player4 { color: blue; }
+        .player5 { color: purple; }
+        .player6 { color: grey; }
+        .player7 { color: orange; }
+        .player8 { color: brown; }
     </style>
 </head>
 
 <body>
-    
+
     <div class="container">
         <div class="row">
-            <div class="col-md-2">
+            <div class="col-md-12 col-sm-12 col-xs-12 text-center">
+                <h1>Chain Reaction</h1>
+                <h3><span id="playername"></span>'s turn</h3>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-3 col-sm-12 col-xs-12">
                 <ul id="players" class="list-group"></ul>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-6 col-sm-12 col-xs-12">
                 <table id="crx"></table>
             </div>
         </div>
@@ -75,8 +112,8 @@
             });
 
             socket.on('play', function (data) {
-                refreshCells(data.cells);
-                turn = data.turn;                
+                refreshCells(data.cells,data.turn,players);
+                turn = data.turn;
             });
 
             $(document).on('click','td' ,function () {
@@ -89,7 +126,7 @@
 
 
         function createLayout(row, column, players) {
-            let code;
+            let code = '';
             for (var i = 0; i < row; i++) {
                 code += '<tr>';
                 for (var j = 0; j < column; j++) {
@@ -99,25 +136,34 @@
             }
             $('#crx').html(code);
 
-            let statusCode;
-            players.forEach(function(player) {
-                statusCode += '<li class="list-group-item" id="'+player.name+'">'+player.name+'</li>';
+            let statusCode = '';
+            players.forEach(function(player,index) {
+                statusCode += '<li class="list-group-item" id="'+player.name+'"><h4><i class="fa"></i>&nbsp;&nbsp;<span class="player'+(index+1)+'">'+player.name+'</span></h4></li>';
             }, this);
             $('#players').html(statusCode);
         }
 
-        function refreshCells(cells) {
+        function refreshCells(cells, turn, players) {
             for (var i = 0; i < cells.length; i++) {
                 for (var j = 0; j < cells[i].length; j++) {
                     $('#' + i + j).text(cells[i][j].atom);
+                    players.forEach(function(player,index) {
+                        $('#' + i + j).toggleClass('player'+(index+1), cells[i][j].owner == player.name);
+                    }, this);                    
+                }
+            }
+            for (var i = 0; i < players.length; i++) {
+                $('#crx').toggleClass('player'+(i+1)+'-bg', i == turn);
+                if (i == turn) {
+                    $('#playername').html(players[i].name);
                 }
             }
         }
 
         function refreshStatus(players) {
             players.forEach(function(player) {
-                $('#'+player.name).toggleClass('list-group-item-success',player.status);
-                $('#'+player.name).toggleClass('list-group-item-danger',!player.status);
+                $('#'+player.name+' i').toggleClass('fa-circle online',player.status);
+                $('#'+player.name+' i').toggleClass('fa-circle-o offline',!player.status);
             }, this);
         }
 
