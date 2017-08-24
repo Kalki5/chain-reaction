@@ -11,6 +11,7 @@
   "bugs": {
     "url": "https://github.com/Kalki5/chain-reaction/issues"
   },
+  "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
